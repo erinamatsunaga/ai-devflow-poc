@@ -55,14 +55,19 @@ gh run watch
 
 ## main を保護する（PR経由を強制・推奨）
 ```powershell
-gh api -X PUT "repos/{owner}/{repo}/branches/main/protection" --input - <<< '{
+@'
+{
   "required_status_checks": { "strict": true, "contexts": ["typecheck / test / build"] },
   "enforce_admins": false,
   "required_pull_request_reviews": { "required_approving_review_count": 0 },
   "restrictions": null
-}'
+}
+'@ | Set-Content -Encoding ascii protection.json
+
+gh api -X PUT "repos/{owner}/{repo}/branches/main/protection" --input protection.json
+Remove-Item protection.json
 ```
-（PowerShell でヒアストリングが通らない場合は、GitHub の Settings > Branches から設定してください）
+（GitHub の Settings > Branches からも設定できます）
 
 ## AIに試させる流れ（例）
 1. `gh issue create` でお題を起票（例: 完了済みを一括削除）
